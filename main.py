@@ -32,6 +32,12 @@ if __name__ == '__main__':
     FINISH_MASK = pygame.mask.from_surface(FINISH)
     FINISH_POSITION = (130,250)
 
+    PATH = [(161, 180), (160, 147), (166, 120), (158, 82), (97, 79), (69, 100),
+            (60, 131), (56, 161), (62, 461), (142, 563), (285, 699), (369, 731), (412, 546),
+            (503, 481), (595, 548), (597, 621), (611, 697), (656, 730), (739, 705), (740, 536),
+            (741, 419), (657, 370), (428, 359), (429, 269), (548, 261), (662, 261), (734, 217), (733, 128),
+            (662, 76), (571, 76), (477, 76), (302, 86), (282, 167), (278, 235), (279, 325), (239, 405), (179, 341), (176, 256)]
+
     FPS = 60
 
     class AbstractCar:
@@ -80,6 +86,36 @@ if __name__ == '__main__':
             self.angle=0
             self.vel = 0
 
+    class NPC_car(AbstractCar):
+        IMG = RED_CAR
+        START_POS= (150,200)
+
+        def __init__(self,max_vel,rational_vel, path=[]):
+            super().__init__(max_vel,rational_vel)
+            self.path = path
+            self.current_point = 0
+            self.vel = max_vel
+
+        def draw_point(self,win):
+            for i in self.path:
+                pygame.draw.circle(win,(255,0,0),i, 5)
+
+        def draw(self, win):
+            super().draw(win)
+            self.draw_point(win)
+
+        def caculate_angle(self):
+            x,y =self.path[self.current_point]
+            x_diff = x - self.x
+            y_diff = y - self.y
+            if y_diff == 0:
+
+
+        def move(self):
+            if self.current_point >= len(self.path): return
+            self.caculate_angle()
+            self.update_path_point()
+            super().move()
 
     class PlayerCar(AbstractCar):
         IMG = RED_CAR
@@ -93,10 +129,11 @@ if __name__ == '__main__':
             self.vel = self.vel * -1
             self.move()
 
-    def draw(win, images,player_car):
+    def draw(win, images,player_car, npc_car):
         for img, pos in images:
             win.blit(img,pos)
         player_car.draw(WIN)
+        npc_car.draw(WIN)
         pygame.display.update()
 
     def move_player(player_car):
@@ -119,23 +156,38 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
     images = [(GRASS,(0,0)), (TRACK, (0,0)), (FINISH,FINISH_POSITION),(TRACK_BORDER,(0,0))]
     player_car = PlayerCar(4,4)
+    npc_car = NPC_car(4,4,PATH)
 
     while run:
         clock.tick(FPS)
-        draw(WIN, images, player_car)
+        draw(WIN, images, player_car, npc_car)
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
                 run=False
                 break
+
+            # make point for npc car...
+            # if i.type == pygame.MOUSEBUTTONDOWN:
+            #     pos = pygame.mouse.get_pos()
+            #     npc_car.path.append(pos)
+
         move_player(player_car)
         if player_car.collide(TRACK_BORDER_MASK) != None:
             print(f"Crash!!!!!!!!! {player_car.x}  {player_car.y}")
             player_car.bounce()
 
+        finish_poi_collide = player_car.collide(FINISH_MASK, *FINISH_POSITION)
+        if finish_poi_collide != None:
+            if finish_poi_collide[1] == 0:
+                player_car.bounce()
+            else:
+                player_car.reset()
+                print("fiinish")
+
         # * 가변인자 패킹!! 130 250을 인자로 넘김
         #if player_car.collide(FINISH_MASK, *FINISH_POSITION):
 
 
-
+    print(npc_car.path)
     pygame.quit()
 
