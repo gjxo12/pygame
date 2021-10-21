@@ -32,11 +32,8 @@ if __name__ == '__main__':
     FINISH_MASK = pygame.mask.from_surface(FINISH)
     FINISH_POSITION = (130,250)
 
-    PATH = [(161, 180), (160, 147), (166, 120), (158, 82), (97, 79), (69, 100),
-            (60, 131), (56, 161), (62, 461), (142, 563), (285, 699), (369, 731), (412, 546),
-            (503, 481), (595, 548), (597, 621), (611, 697), (656, 730), (739, 705), (740, 536),
-            (741, 419), (657, 370), (428, 359), (429, 269), (548, 261), (662, 261), (734, 217), (733, 128),
-            (662, 76), (571, 76), (477, 76), (302, 86), (282, 167), (278, 235), (279, 325), (239, 405), (179, 341), (176, 256)]
+    PATH = [(161, 180), (175, 99), (65, 101), (61, 335), (81, 502), (266, 690), (409, 685), (431, 502), (604, 556), (664, 737), (745, 585),
+            (734, 408), (522, 356), (413, 267), (676, 244), (747, 119), (521, 64), (317, 77), (282, 259), (237, 407), (176, 257)]
 
     FPS = 60
 
@@ -109,6 +106,25 @@ if __name__ == '__main__':
             x_diff = x - self.x
             y_diff = y - self.y
             if y_diff == 0:
+                desired_radian_angle = math.pi / 2
+            else:
+                desired_radian_angle = math.atan(x_diff / y_diff)
+            if y > self.y:
+                desired_radian_angle = desired_radian_angle + math.pi
+
+            differenc_in_angle = self.angle - math.degrees(desired_radian_angle)
+            if differenc_in_angle >= 180:
+                differenc_in_angle= differenc_in_angle - 360
+            if differenc_in_angle > 0:
+                self.angle = self.angle - min(self.rotation_vel, abs(differenc_in_angle))
+            else:
+                self.angle = self.angle + min(self.rotation_vel, abs(differenc_in_angle))
+
+        def update_path_point(self):
+            target = self.path[self.current_point]
+            rect = pygame.Rect(self.x, self.y, self.img.get_width(), self.img.get_height())
+            if rect.collidepoint(*target):
+                self.current_point = self.current_point+1
 
 
         def move(self):
@@ -152,6 +168,26 @@ if __name__ == '__main__':
         if not moved:
             player_car.reduce_speed()
 
+    def handle_collide(player_car,npc_car):
+        if player_car.collide(TRACK_BORDER_MASK) != None:
+            print(f"Crash!!!!!!!!! {player_car.x}  {player_car.y}")
+            player_car.bounce()
+
+        player_finish_poi_collide = player_car.collide(FINISH_MASK, *FINISH_POSITION)
+        npc_finish_poi_collide = npc_car.collide(FINISH_MASK, *FINISH_POSITION)
+        if npc_finish_poi_collide != None:
+            player_car.reset()
+            npc_car.reset()
+            print("computer win")
+
+        if player_finish_poi_collide != None:
+            if player_finish_poi_collide[1] == 0:
+                player_car.bounce()
+            else:
+                player_car.reset()
+                npc_car.reset()
+                print("Your car Win")
+
     run = True
     clock = pygame.time.Clock()
     images = [(GRASS,(0,0)), (TRACK, (0,0)), (FINISH,FINISH_POSITION),(TRACK_BORDER,(0,0))]
@@ -172,17 +208,9 @@ if __name__ == '__main__':
             #     npc_car.path.append(pos)
 
         move_player(player_car)
-        if player_car.collide(TRACK_BORDER_MASK) != None:
-            print(f"Crash!!!!!!!!! {player_car.x}  {player_car.y}")
-            player_car.bounce()
+        npc_car.move()
 
-        finish_poi_collide = player_car.collide(FINISH_MASK, *FINISH_POSITION)
-        if finish_poi_collide != None:
-            if finish_poi_collide[1] == 0:
-                player_car.bounce()
-            else:
-                player_car.reset()
-                print("fiinish")
+        handle_collide(player_car,npc_car)
 
         # * 가변인자 패킹!! 130 250을 인자로 넘김
         #if player_car.collide(FINISH_MASK, *FINISH_POSITION):
