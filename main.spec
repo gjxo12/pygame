@@ -3,8 +3,7 @@
 
 block_cipher = None
 
-
-a = Analysis(['main.py'],
+a = Analysis(['src\\main.py'],
              pathex=['C:\\Users\\htk\\Desktop\\pycharm_project\\game'],
              binaries=[],
              datas=[('./imgs/*' , './imgs')
