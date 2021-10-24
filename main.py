@@ -3,8 +3,8 @@ import time
 import math
 import os
 import sys
-from utils import scale_image, blit_rotate_center
-
+from utils import scale_image, blit_rotate_center, blit_next_center
+pygame.font.init()
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
@@ -28,6 +28,8 @@ if __name__ == '__main__':
     WIN = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Racing Game!")
 
+    MAIN_FONT = pygame.font.SysFont("HTK",44)
+
     FINISH = pygame.image.load("imgs/finish.png")
     FINISH_MASK = pygame.mask.from_surface(FINISH)
     FINISH_POSITION = (130,250)
@@ -36,6 +38,36 @@ if __name__ == '__main__':
             (734, 408), (522, 356), (413, 267), (676, 244), (747, 119), (521, 64), (317, 77), (282, 259), (237, 407), (176, 257)]
 
     FPS = 60
+
+    class Gameinfo:
+        LEVELS = 10
+
+        def __init__(self, level=1):
+            self.level = level
+            self.started = False
+            self.level_start_time = 0
+
+        def next_level(self):
+            self.level = self.level + 1
+            self.started  =False
+
+        def reset(self):
+            self.level = 1
+            self.started = False
+            self.level_start_time = 0
+
+        def finish(self):
+            return self.level > self.LEVELS
+
+        def start_level(self):
+            self.started = True
+            self.level_start_time = time.time()
+
+        def level_time_time(self):
+            if not self.started:
+                return 0
+            return round(time.time() - self.level_start_time)
+
 
     class AbstractCar:
         def __init__(self,max_vel,rotation_vel):
@@ -126,12 +158,17 @@ if __name__ == '__main__':
             if rect.collidepoint(*target):
                 self.current_point = self.current_point+1
 
-
         def move(self):
             if self.current_point >= len(self.path): return
             self.caculate_angle()
             self.update_path_point()
             super().move()
+
+        def next_level(self, level):
+            self.reset()
+            self.vel = self.max_vel + (level - 1) * 0.2
+            self.current_point = 0
+
 
     class PlayerCar(AbstractCar):
         IMG = RED_CAR
@@ -145,9 +182,18 @@ if __name__ == '__main__':
             self.vel = self.vel * -1
             self.move()
 
-    def draw(win, images,player_car, npc_car):
+    def draw(win, images,player_car, npc_car, game_info):
         for img, pos in images:
             win.blit(img,pos)
+        level_text = MAIN_FONT.render(f"Level: {game_info.level}",1,(244,244,244))
+        win.blit(level_text,(10,HEIGHT -level_text.get_height() - 70))
+
+        time_text = MAIN_FONT.render(f"Time: {game_info.level_time_time()}", 1, (244, 244, 244))
+        win.blit(time_text, (10, HEIGHT - time_text.get_height() - 40))
+
+        vel_text = MAIN_FONT.render(f"Km/h: {round(player_car.vel,1)} px/s", 1, (244, 244, 244))
+        win.blit(vel_text, (10, HEIGHT - vel_text.get_height() - 10))
+
         player_car.draw(WIN)
         npc_car.draw(WIN)
         pygame.display.update()
@@ -168,7 +214,7 @@ if __name__ == '__main__':
         if not moved:
             player_car.reduce_speed()
 
-    def handle_collide(player_car,npc_car):
+    def handle_collide(player_car,npc_car,game_info):
         if player_car.collide(TRACK_BORDER_MASK) != None:
             print(f"Crash!!!!!!!!! {player_car.x}  {player_car.y}")
             player_car.bounce()
@@ -176,6 +222,10 @@ if __name__ == '__main__':
         player_finish_poi_collide = player_car.collide(FINISH_MASK, *FINISH_POSITION)
         npc_finish_poi_collide = npc_car.collide(FINISH_MASK, *FINISH_POSITION)
         if npc_finish_poi_collide != None:
+            blit_next_center(WIN,MAIN_FONT,"You Lost.....")
+            pygame.display.update()
+            pygame.time.wait(5000)
+            game_info.reset()
             player_car.reset()
             npc_car.reset()
             print("computer win")
@@ -184,8 +234,9 @@ if __name__ == '__main__':
             if player_finish_poi_collide[1] == 0:
                 player_car.bounce()
             else:
+                game_info.next_level()
                 player_car.reset()
-                npc_car.reset()
+                npc_car.next_level(game_info.level)
                 print("Your car Win")
 
     run = True
@@ -193,10 +244,22 @@ if __name__ == '__main__':
     images = [(GRASS,(0,0)), (TRACK, (0,0)), (FINISH,FINISH_POSITION),(TRACK_BORDER,(0,0))]
     player_car = PlayerCar(4,4)
     npc_car = NPC_car(4,4,PATH)
+    game_info = Gameinfo()
 
     while run:
         clock.tick(FPS)
-        draw(WIN, images, player_car, npc_car)
+        draw(WIN, images, player_car, npc_car,game_info)
+
+        while not game_info.started:
+            blit_next_center(WIN,MAIN_FONT, f"HTK!!!!!!!!! {game_info.level}")
+            pygame.display.update()
+            for i in pygame.event.get():
+                if i.type == pygame.QUIT:
+                    run = False
+                    break
+                if i.type == pygame.KEYDOWN:
+                    game_info.start_level()
+
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
                 run=False
@@ -209,9 +272,14 @@ if __name__ == '__main__':
 
         move_player(player_car)
         npc_car.move()
-
-        handle_collide(player_car,npc_car)
-
+        handle_collide(player_car,npc_car,game_info)
+        if game_info.finish():
+            blit_next_center(WIN, MAIN_FONT, "You Lost.....")
+            pygame.time.wait(5000)
+            game_info.reset()
+            player_car.reset()
+            npc_car.reset()
+            print("computer win")
         # * 가변인자 패킹!! 130 250을 인자로 넘김
         #if player_car.collide(FINISH_MASK, *FINISH_POSITION):
 
