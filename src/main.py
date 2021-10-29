@@ -3,16 +3,30 @@ import time
 import math
 import os
 import sys
+import logging
 from utils import scale_image, blit_rotate_center, blit_next_center
 from pygame_img import *
 # Press the green button in the gutter to run the script.
+
+log = logging.getLogger(__name__)
+# log.setLevel(logging.INFO)
+
+logging.basicConfig(filename="test.log",
+                            filemode='a',
+                            format='%(asctime)s,%(module)s %(filename)s %(funcName)s %(name)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=logging.INFO)
+log.info("Running")
+
 if __name__ == '__main__':
     try:
         os.chdir(sys._MEIPASS)
-        print(f"{sys._MEIPASS}   {os.chdir(sys._MEIPASS)}")
+       #log.info(f"{sys._MEIPASS} , {os.chdir(sys._MEIPASS)}")
     except:
         os.chdir(os.getcwd())
-        print(f"{os.chdir(os.getcwd())}")
+        #log.info(f"{os.chdir(os.getcwd())}")
+
+    log.info("Test")
 
     class Gameinfo:
         LEVELS = 10
