@@ -1,5 +1,5 @@
 from abstract_car import AbstractCar
-from src import pygame_img
+from src.racing_game import pygame_img
 import pygame
 import math
 

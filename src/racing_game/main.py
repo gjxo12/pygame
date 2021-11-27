@@ -1,9 +1,6 @@
-#import pygame
 import os
 import sys
 import logging
-from utils import *
-#from pygame_img import *
 from npc_car import *
 from player_car import *
 from play import *
@@ -14,10 +11,10 @@ log = logging.getLogger(__name__)
 # log.setLevel(logging.INFO)
 
 logging.basicConfig(filename="test.log",
-                            filemode='a',
-                            format='%(asctime)s,%(module)s %(filename)s %(funcName)s %(name)s %(levelname)s %(message)s',
-                            datefmt='%H:%M:%S',
-                            level=logging.INFO)
+                    filemode='a',
+                    format='%(asctime)s,%(module)s %(filename)s %(funcName)s %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.INFO)
 log.info("Running")
 
 if __name__ == '__main__':

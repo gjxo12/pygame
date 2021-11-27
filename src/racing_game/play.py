@@ -1,5 +1,5 @@
-from src.pygame_img import *
-from src.utils import *
+from src.racing_game.pygame_img import *
+from src.racing_game.utils import *
 
 def draw(win, images, player_car, npc_car, game_info):
     for img, pos in images:

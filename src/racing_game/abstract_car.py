@@ -1,6 +1,6 @@
 import math
 import pygame
-from src import utils
+from src.racing_game import utils
 
 
 class AbstractCar:
