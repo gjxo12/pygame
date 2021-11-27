@@ -1,7 +1,7 @@
 import math
 import pygame
 from src.racing_game import utils
-
+from src.racing_game.pygame_img import *
 
 class AbstractCar:
     def __init__(self, max_vel, rotation_vel):

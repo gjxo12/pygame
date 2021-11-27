@@ -1,4 +1,4 @@
-from abstract_car import AbstractCar
+from src.racing_game.abstract_car import AbstractCar
 from src.racing_game import pygame_img
 
 

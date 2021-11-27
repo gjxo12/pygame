@@ -1,5 +1,5 @@
 import pygame
-from utils import scale_image
+from src.racing_game.utils import scale_image
 pygame.font.init()
 
 GRASS = scale_image(pygame.image.load("../../imgs/grass.jpg"), 2.5)

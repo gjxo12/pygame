@@ -1,6 +1,6 @@
-def test(a,b,c):
+def foo(a,b,c):
     print(a,b,c)
 
 FINISH_POSITION = (130,250)
 
-test(1, *FINISH_POSITION)
+foo(1, *FINISH_POSITION)

@@ -1,10 +1,10 @@
-from abstract_car import AbstractCar
-from src.racing_game import pygame_img
+from src.racing_game.abstract_car import AbstractCar
+from src.racing_game.pygame_img import *
 import pygame
 import math
 
 class NPC_car(AbstractCar):
-    IMG = pygame_img.RED_CAR
+    IMG = RED_CAR
     START_POS = (150, 200)
 
     def __init__(self, max_vel, rational_vel, path=[]):

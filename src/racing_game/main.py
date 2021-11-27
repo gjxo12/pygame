@@ -1,10 +1,13 @@
 import os
 import sys
 import logging
-from npc_car import *
-from player_car import *
-from play import *
-from gameinfo import *
+from src.racing_game.npc_car import *
+from src.racing_game.player_car import *
+from src.racing_game.play import *
+from src.racing_game.gameinfo import *
+from src.racing_game.pygame_img import *
+from src.racing_game.utils import blit_next_center
+import pygame
 # Press the green button in the gutter to run the script.
 
 log = logging.getLogger(__name__)
